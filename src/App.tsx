@@ -19,15 +19,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/products/:category" element={<Products />} />
-          <Route path="/compare" element={<Compare />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/products/:category" element={<Products />} />
+            <Route path="/product/:productId" element={<ProductDetails />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

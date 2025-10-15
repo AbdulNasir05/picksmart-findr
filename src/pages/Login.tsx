@@ -1,29 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { Smartphone, Mail } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn, signUp, signInWithPhone, signInWithGoogle, user } = useAuth();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleLogin = (type: "email" | "phone") => {
-    const value = type === "email" ? email : phone;
-    if (!value) {
-      toast.error(`Please enter your ${type}`);
+  useEffect(() => {
+    if (user) {
+      navigate("/categories");
+    }
+  }, [user, navigate]);
+
+  const handleEmailAuth = async () => {
+    if (!email || !password) {
       return;
     }
-    toast.success("Welcome to PickSmart!");
-    navigate("/categories");
+    
+    if (isSignUp) {
+      await signUp(email, password);
+    } else {
+      await signIn(email, password);
+    }
+  };
+
+  const handlePhoneAuth = async () => {
+    if (!phone) {
+      return;
+    }
+    await signInWithPhone(phone);
+  };
+
+  const handleGoogleAuth = async () => {
+    await signInWithGoogle();
   };
 
   const handleGuest = () => {
-    toast.info("Continuing as guest");
     navigate("/categories");
   };
 
@@ -70,12 +91,29 @@ const Login = () => {
                   className="h-12"
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Password</label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12"
+                />
+              </div>
               <Button 
-                onClick={() => handleLogin("email")}
+                onClick={handleEmailAuth}
                 className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity"
               >
-                Continue with Email
+                {isSignUp ? 'Sign Up' : 'Sign In'} with Email
               </Button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-muted-foreground hover:text-foreground w-full text-center"
+              >
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+              </button>
             </TabsContent>
 
             <TabsContent value="phone" className="space-y-4">
@@ -83,17 +121,17 @@ const Login = () => {
                 <label className="text-sm font-medium text-foreground">Phone Number</label>
                 <Input
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="h-12"
                 />
               </div>
               <Button 
-                onClick={() => handleLogin("phone")}
+                onClick={handlePhoneAuth}
                 className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity"
               >
-                Continue with Phone
+                Send OTP
               </Button>
             </TabsContent>
           </Tabs>
@@ -106,6 +144,14 @@ const Login = () => {
               <span className="bg-card px-2 text-muted-foreground">Or</span>
             </div>
           </div>
+
+          <Button 
+            variant="outline" 
+            onClick={handleGoogleAuth}
+            className="w-full h-12 mb-3"
+          >
+            Continue with Google
+          </Button>
 
           <Button 
             variant="outline" 
