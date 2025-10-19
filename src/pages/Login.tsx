@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Smartphone, Mail } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,6 +24,19 @@ const Login = () => {
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
     
@@ -35,9 +49,26 @@ const Login = () => {
 
   const handlePhoneAuth = async () => {
     if (!phone) {
+      toast.error("Please enter a phone number");
       return;
     }
-    await signInWithPhone(phone);
+    
+    // Format phone number to E.164 format if needed
+    let formattedPhone = phone.trim().replace(/\s+/g, '');
+    
+    // Add +91 if not present and number doesn't start with +
+    if (!formattedPhone.startsWith('+')) {
+      formattedPhone = '+91' + formattedPhone;
+    }
+    
+    // Basic validation - should be at least 10 digits after country code
+    const phoneRegex = /^\+\d{10,15}$/;
+    if (!phoneRegex.test(formattedPhone)) {
+      toast.error("Please enter a valid phone number (e.g., +91 9876543210)");
+      return;
+    }
+    
+    await signInWithPhone(formattedPhone);
   };
 
   const handleGoogleAuth = async () => {
@@ -121,11 +152,14 @@ const Login = () => {
                 <label className="text-sm font-medium text-foreground">Phone Number</label>
                 <Input
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="+91 9876543210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="h-12"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Include country code (e.g., +91 for India)
+                </p>
               </div>
               <Button 
                 onClick={handlePhoneAuth}
