@@ -194,7 +194,12 @@ const Products = () => {
     }
   };
 
-  const toggleWishlist = (productId: string | number) => {
+  const toggleWishlist = async (productId: string | number) => {
+    if (!user) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+    
     const id = String(productId);
     setWishlist(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -208,7 +213,7 @@ const Products = () => {
     } else if (compareList.length < 3) {
       setCompareList(prev => [...prev, id]);
     } else {
-      toast.error('You can compare up to 3 products only');
+      toast.error("You can only compare up to 3 products");
     }
   };
 
