@@ -29,7 +29,8 @@ interface DeviceCardProps {
 }
 
 export const DeviceCard = ({ device, category }: DeviceCardProps) => {
-  const flipkartPrice = device["Flipkart Price"] || device["Flipkart prices"] || device["Amazon Price"];
+  const amazonPrice = device["Amazon Price"] || 0;
+  const flipkartPrice = device["Flipkart Price"] || device["Flipkart prices"] || amazonPrice || 0;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] bg-card">
@@ -134,7 +135,9 @@ export const DeviceCard = ({ device, category }: DeviceCardProps) => {
                 </span>
               )}
             </div>
-            <p className="text-2xl font-bold text-primary mb-1">₹{device["Amazon Price"].toLocaleString('en-IN')}</p>
+            <p className="text-2xl font-bold text-primary mb-1">
+              {amazonPrice > 0 ? `₹${amazonPrice.toLocaleString('en-IN')}` : 'Price not available'}
+            </p>
             <p className="text-xs text-muted-foreground mb-2">Delivery in 2 days • In Stock</p>
             <Button 
               className="w-full" 
@@ -156,7 +159,9 @@ export const DeviceCard = ({ device, category }: DeviceCardProps) => {
                 </span>
               )}
             </div>
-            <p className="text-2xl font-bold text-primary mb-1">₹{flipkartPrice.toLocaleString('en-IN')}</p>
+            <p className="text-2xl font-bold text-primary mb-1">
+              {flipkartPrice > 0 ? `₹${flipkartPrice.toLocaleString('en-IN')}` : 'Price not available'}
+            </p>
             <p className="text-xs text-muted-foreground mb-2">Delivery in 3 days • In Stock</p>
             <Button 
               className="w-full" 
