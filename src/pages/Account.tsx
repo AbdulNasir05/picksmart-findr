@@ -1,16 +1,101 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, User, Mail, Phone, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Account = () => {
   const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+      setEmail(user.email || "");
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      if (import.meta.env.DEV) {
+        console.error("Error fetching profile:", error);
+      }
+      return;
+    }
+
+    if (data) {
+      setProfile(data);
+      setFullName(data.full_name || "");
+      setPhone(data.phone || "");
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (!user) return;
+
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        phone: phone,
+      })
+      .eq("id", user.id);
+
+    setSaving(false);
+
+    if (error) {
+      toast.error("Failed to update profile");
+      if (import.meta.env.DEV) {
+        console.error("Error updating profile:", error);
+      }
+      return;
+    }
+
+    toast.success("Profile updated successfully");
+    fetchProfile();
+  };
+
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,8 +121,10 @@ const Account = () => {
               <User className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground">John Doe</h2>
-              <p className="text-muted-foreground">Member since Jan 2024</p>
+              <h2 className="text-2xl font-bold text-foreground">{fullName || "User"}</h2>
+              <p className="text-muted-foreground">
+                Member since {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
+              </p>
             </div>
           </div>
 
@@ -48,8 +135,10 @@ const Account = () => {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input 
                   id="name"
-                  defaultValue="John Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="pl-10"
+                  placeholder="Enter your full name"
                 />
               </div>
             </div>
@@ -61,10 +150,12 @@ const Account = () => {
                 <Input 
                   id="email"
                   type="email"
-                  defaultValue="john.doe@example.com"
-                  className="pl-10"
+                  value={email}
+                  className="pl-10 bg-muted"
+                  disabled
                 />
               </div>
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
 
             <div className="space-y-2">
@@ -74,15 +165,21 @@ const Account = () => {
                 <Input 
                   id="phone"
                   type="tel"
-                  defaultValue="+1 (555) 000-0000"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="pl-10"
+                  placeholder="+1 (555) 000-0000"
                 />
               </div>
             </div>
 
             <div className="pt-6 border-t border-border flex gap-3">
-              <Button className="flex-1 bg-gradient-primary">
-                Save Changes
+              <Button 
+                className="flex-1 bg-gradient-primary"
+                onClick={handleSaveChanges}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
               <Button 
                 variant="outline" 
