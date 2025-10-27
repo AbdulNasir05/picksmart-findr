@@ -37,7 +37,12 @@ const Categories = () => {
   const navigate = useNavigate();
 
   const handleCategoryClick = (categoryId: string) => {
-    navigate(`/products/${categoryId}`);
+    const routeMap: { [key: string]: string } = {
+      phone: "/mobiles",
+      laptop: "/laptops",
+      tablet: "/tablets",
+    };
+    navigate(routeMap[categoryId] || `/products/${categoryId}`);
   };
 
   const handleLogout = () => {
