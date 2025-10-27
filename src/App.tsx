@@ -11,6 +11,9 @@ import ProductDetails from "./pages/ProductDetails";
 import Compare from "./pages/Compare";
 import Wishlist from "./pages/Wishlist";
 import Account from "./pages/Account";
+import Mobiles from "./pages/Mobiles";
+import Laptops from "./pages/Laptops";
+import Tablets from "./pages/Tablets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/compare" element={<Compare />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/mobiles" element={<Mobiles />} />
+            <Route path="/laptops" element={<Laptops />} />
+            <Route path="/tablets" element={<Tablets />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
