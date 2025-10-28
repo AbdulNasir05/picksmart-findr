@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 
 interface Device {
+  id: string;
   brand: string;
   model: string;
   image: string;
@@ -70,6 +71,8 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
   });
   const [sortBy, setSortBy] = useState("popularity");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [compareList, setCompareList] = useState<string[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -188,6 +191,29 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
     }
   };
 
+  const toggleWishlist = async (productId: string | number) => {
+    if (!user) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+    
+    const id = String(productId);
+    setWishlist(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleCompare = (productId: string | number) => {
+    const id = String(productId);
+    if (compareList.includes(id)) {
+      setCompareList(prev => prev.filter(i => i !== id));
+    } else if (compareList.length < 3) {
+      setCompareList(prev => [...prev, id]);
+    } else {
+      toast.error("You can only compare up to 3 products");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -229,8 +255,10 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 overflow-y-auto">
-                <FilterPanel category={categoryKey} onFilterChange={setFilters} isMobile />
+              <SheetContent side="left" className="w-80 p-0 flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-6">
+                  <FilterPanel category={categoryKey} onFilterChange={setFilters} isMobile />
+                </div>
               </SheetContent>
             </Sheet>
 
@@ -339,7 +367,12 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
                 </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {bestsellers.map((device, index) => (
-                    <DeviceCard key={index} device={device} category={category} />
+                    <DeviceCard key={index} device={device} category={category}
+                      // isInWishlist={wishlist.includes(device.id)}
+                      // isInCompare={compareList.includes(device.id)}
+                      // onToggleWishlist={toggleWishlist}
+                      // onToggleCompare={toggleCompare} 
+                    />
                   ))}
                 </div>
               </section>
@@ -351,7 +384,12 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
                 <h2 className="text-2xl font-bold text-foreground mb-6">Recommended For You</h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {recommended.map((device, index) => (
-                    <DeviceCard key={index} device={device} category={category} />
+                    <DeviceCard key={index} device={device} category={category} 
+                      // isInWishlist={wishlist.includes(device.id)}
+                      // isInCompare={compareList.includes(device.id)}
+                      // onToggleWishlist={toggleWishlist}
+                      // onToggleCompare={toggleCompare}
+                    />
                   ))}
                 </div>
               </section>
@@ -371,7 +409,12 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedDevices.map((device, index) => (
-                    <DeviceCard key={index} device={device} category={category} />
+                    <DeviceCard key={index} device={device} category={category} 
+                      // isInWishlist={wishlist.includes(device.id)}
+                      // isInCompare={compareList.includes(device.id)}
+                      // onToggleWishlist={toggleWishlist}
+                      // onToggleCompare={toggleCompare}
+                    />
                   ))}
                 </div>
               )}
@@ -380,17 +423,8 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
         </div>
       </div>
 
-      {/* Floating Chat Button */}
-      <Button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl bg-gradient-primary hover:opacity-90 transition-opacity z-50"
-        size="icon"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </Button>
-
       {/* Chatbot */}
-      <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatBot />
     </div>
   );
 };

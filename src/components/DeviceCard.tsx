@@ -1,10 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Heart, BarChart3, Star, ExternalLink } from "lucide-react";
 
 interface DeviceCardProps {
   device: {
+    id: string;
     brand: string;
     model: string;
     image: string;
@@ -25,16 +27,42 @@ interface DeviceCardProps {
     "Flipkart Price"?: number;
     "Flipkart prices"?: number;
   };
+  // isInWishlist: boolean;
+  // isInCompare: boolean;
+  // onToggleWishlist: (id:string) => void;
+  // onToggleCompare: (id:string) => void;
   category: "mobile" | "laptop" | "tablet";
 }
 
-export const DeviceCard = ({ device, category }: DeviceCardProps) => {
+export const DeviceCard = ({ device, 
+  // isInWishlist, 
+  // isInCompare, 
+  // onToggleWishlist, 
+  // onToggleCompare, 
+  category }: DeviceCardProps) => {
+
+  const navigate = useNavigate();
+    
+  // const handleCardClick = () => {
+  //   navigate(`/product/${device.id}`);
+  // };
+
+  // const handleWishlistClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   onToggleWishlist(device.id);
+  // };
+
+  // const handleCompareClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   onToggleCompare(device.id);
+  // };
+
   const amazonPrice = device["Amazon Price"] || 0;
   const flipkartPrice = device["Flipkart Price"] || device["Flipkart prices"] || amazonPrice || 0;
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] bg-card">
-      {/* Product Image */}
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] bg-card"    >
+        {/* Product Image */}
       <div className="relative h-64 bg-muted/50 flex items-center justify-center p-4">
         <img
           src={device.image}
@@ -56,7 +84,7 @@ export const DeviceCard = ({ device, category }: DeviceCardProps) => {
           <h3 className="text-xl font-semibold text-foreground">{device.brand}</h3>
           <p className="text-sm text-muted-foreground">{device.model}</p>
         </div>
-
+        
         {/* Key Specifications */}
         <div className="grid grid-cols-2 gap-2 text-sm">
           {device.ram && (

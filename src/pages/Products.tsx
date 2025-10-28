@@ -253,9 +253,17 @@ const Products = () => {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 overflow-y-auto">
-                <FilterPanel category={category} onFilterChange={setFilters} isMobile />
-              </SheetContent>
+                /* SheetContent: create one scroll root for mobile, keep layout for desktop */
+                <SheetContent side="left" className="w-80 p-0 flex flex-col overflow-hidden">
+                  {/* This div is the scroll root for the sheet (mobile) and also the parent for desktop sticky behaviour */}
+                  <div className="flex-1 overflow-y-auto">
+                    {/* keep padding here so the scrollable area includes the padding */}
+                    <div className="p-6">
+                      <FilterPanel category={category} onFilterChange={setFilters} isMobile />
+                    </div>
+                  </div>
+                </SheetContent>
+
             </Sheet>
 
             <DropdownMenu>
@@ -459,18 +467,9 @@ const Products = () => {
           </main>
         </div>
       </div>
-
-      {/* Floating Chat Button */}
-      <Button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl bg-gradient-primary hover:opacity-90 transition-opacity z-50"
-        size="icon"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </Button>
-
+      
       {/* Chatbot */}
-      <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatBot />
     </div>
   );
 };
