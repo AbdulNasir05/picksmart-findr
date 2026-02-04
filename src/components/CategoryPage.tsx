@@ -128,14 +128,20 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
 
     // Display filter
     if (filters.specs.Display && filters.specs.Display.length > 0 && device.display) {
-      if (!filters.specs.Display.some(display => device.display?.includes(display))) {
+      if (!filters.specs.Display.some(display =>
+        device.display.replace(/\s/g, "").toLowerCase()
+          .includes(display.replace(/["\s]/g, "").toLowerCase())
+      )) {
         return false;
       }
     }
 
     // Processor filter
     if (filters.specs.Processor && filters.specs.Processor.length > 0 && device.processor) {
-      if (!filters.specs.Processor.some(proc => device.processor?.toLowerCase().includes(proc.toLowerCase()))) {
+      if (!filters.specs.Processor.some(proc =>
+        device.processor.replace(/\s/g, "").toLowerCase()
+          .includes(proc.replace(/\s/g, "").toLowerCase())
+      )) {
         return false;
       }
     }
