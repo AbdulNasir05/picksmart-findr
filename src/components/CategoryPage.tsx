@@ -106,17 +106,25 @@ export const CategoryPage = ({ title, icon: Icon, category, categoryKey, devices
 
     // RAM filter
     if (filters.specs.RAM && filters.specs.RAM.length > 0 && device.ram) {
-      if (!filters.specs.RAM.some(ram => device.ram?.includes(ram))) {
+      if (!filters.specs.RAM.some(ram =>
+        device.ram.replace(/\s/g, "").toLowerCase()
+          .includes(ram.replace(/\s/g, "").toLowerCase())
+      )) {
         return false;
       }
     }
 
+
     // Storage filter
     if (filters.specs.Storage && filters.specs.Storage.length > 0 && device.storage) {
-      if (!filters.specs.Storage.some(storage => device.storage?.includes(storage))) {
+      if (!filters.specs.Storage.some(storage =>
+        device.storage.replace(/\s/g, "").toLowerCase()
+          .includes(storage.replace(/\s/g, "").toLowerCase())
+      )) {
         return false;
       }
     }
+
 
     // Display filter
     if (filters.specs.Display && filters.specs.Display.length > 0 && device.display) {
